@@ -77,7 +77,7 @@ mod test {
     fn single_struct_with_diff_types() {
 
         regexify!(Movies {
-        title, String, r"\w+"
+        title, String, r"'[^']+'"
         ws, String, r"\s+"
         open_paren, String, r"\("
         year, i32, r"\d+"
@@ -86,9 +86,9 @@ mod test {
 
         let movie: Movies = Default::default();
 
-        let filled_movie = movie.find("Red (2010)");
+        let filled_movie = movie.find("Not my favorite movie: 'Citizen Kane' (1941).");
 
-        assert_eq!("Red", filled_movie.title);
-        assert_eq!(2010, filled_movie.year);
+        assert_eq!(r"'Citizen Kane'", filled_movie.title);
+        assert_eq!(1941, filled_movie.year);
     }
 }
