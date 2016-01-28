@@ -1,5 +1,18 @@
 extern crate regex;
 
+trait RegexStruct {
+    fn to_regex(&self) -> String;
+    fn fill(&self, text: &str) -> Self;
+}
+
+struct Restruct;
+
+impl Restruct {
+    fn find<T: RegexStruct>(regexstruct: &T, text: &str) -> T {
+        regexstruct.fill(text)
+    }
+}
+
 #[macro_export]
 macro_rules! regexify {
     ($name : ident {
@@ -17,7 +30,7 @@ macro_rules! regexify {
           }
         }
                 
-        impl $name {
+        impl RegexStruct for $name {
             
             fn to_regex(&self) -> String {           
               
@@ -32,7 +45,7 @@ macro_rules! regexify {
               regex
             }
             
-            fn find(&self, text: &str) -> $name {
+            fn fill(&self, text: &str) -> $name {
               
               let captures = Regex::new(&self.to_regex()).unwrap().captures(text).unwrap();
       
@@ -42,7 +55,7 @@ macro_rules! regexify {
               
               $(
                   i += 1;
-                  filled_struct.$field = captures.at(i).unwrap().to_owned().parse::<$field_type>().unwrap();                
+                  filled_struct.$field = captures[i].parse::<$field_type>().unwrap();                
               )*
               
               filled_struct
@@ -55,7 +68,8 @@ macro_rules! regexify {
 mod test {
 
     use regex::Regex;
-
+    use super::*;
+    
     #[test]
     fn single_struct_with_same_types() {
 
@@ -67,7 +81,7 @@ mod test {
 
         let host: HostName = Default::default();
 
-        let filled_host = host.find("example.com");
+        let filled_host = Restruct::find(&host, "example.com");
 
         assert_eq!("example", filled_host.domain);
         assert_eq!("com", filled_host.tld);
@@ -86,7 +100,7 @@ mod test {
 
         let movie: Movies = Default::default();
 
-        let filled_movie = movie.find("Not my favorite movie: 'Citizen Kane' (1941).");
+        let filled_movie = Restruct::find(&movie, "Not my favorite movie: 'Citizen Kane' (1941).");
 
         assert_eq!(r"'Citizen Kane'", filled_movie.title);
         assert_eq!(1941, filled_movie.year);

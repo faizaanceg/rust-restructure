@@ -5,6 +5,9 @@ This crate is inspired from [alexflint/go-restructure](https://github.com/alexfl
 This crate uses a macro `regexify!` which takes the struct along with its fields and patterns for sub-expressions.
 
 ```rust
+extern crate regex-struct;
+
+use regex-struct::{Restruct, RegexStruct};
 
 regexify!(HostName {
   domain, String, r"\w+"
@@ -15,7 +18,7 @@ regexify!(HostName {
 fn main() {
   let host: HostName = Default::default();
 
-  let filled_host = host.find("example.com");
+  let filled_host = Restruct::find(&host, "example.com");
 
   assert_eq!("example", filled_host.domain);
   assert_eq!("com", filled_host.tld);
@@ -47,6 +50,10 @@ regexify!( <struct name> {
 
 ```rust
 
+extern crate regex-struct;
+
+use regex-struct::{Restruct, RegexStruct};
+
 regexify!(MovieDetail {
   title, String, r"'[^']+'"
   ws, String, r"\s+"
@@ -59,7 +66,7 @@ fn main() {
 
   let movie: MovieDetail = Default::default();
 
-  let not_my_favorite_movie = movie.find("Not my favorite movie: 'Citizen Kane' (1941).");
+  let not_my_favorite_movie = Restruct::find(&movie, "Not my favorite movie: 'Citizen Kane' (1941).");
 
   assert_eq!(r"'Citizen Kane'", not_my_favorite_movie.title);
   assert_eq!(1941, not_my_favorite_movie.year);
@@ -67,11 +74,11 @@ fn main() {
 }
 
 ```
+
 ### What `regexify!` does
-Apart from declaring the struct specified, it also implements a couple of methods, namely `to_regex()` and `find()` on the defined struct. It also applies the trait `std::default::Default` on the struct. 
+Apart from declaring the struct specified, it also implements the `RegexStruct` trait on the defined struct. It also applies the trait `std::default::Default` on the struct. 
 
 ### TODO
-    Nested structs
-    Separate methods into a trait
-    Better error handling
-    Make it available on crates.io
+* Nested structs
+* Better error handling
+* Make it available on crates.io

@@ -1,7 +1,7 @@
 [package]
-name = "regex-struct"
+name = "restructure"
 version = "0.1.0"
 authors = ["Faizaan <aulisius7@gmail.com>"]
 
 [dependencies]
-regex = "0.1"
+regex = "^0.1.48"
