@@ -1,14 +1,16 @@
 extern crate regex;
 
-trait RegexStruct {
+use regex::Regex;
+
+pub trait RegexStruct {
     fn to_regex(&self) -> String;
     fn fill(&self, text: &str) -> Self;
 }
 
-struct Restruct;
+pub struct Restruct;
 
 impl Restruct {
-    fn find<T: RegexStruct>(regexstruct: &T, text: &str) -> T {
+    pub fn find<T: RegexStruct>(regexstruct: &T, text: &str) -> T {
         regexstruct.fill(text)
     }
 }
@@ -51,14 +53,14 @@ macro_rules! regexify {
       
               let mut i = 0;
               
-              let mut filled_struct : $name  = Default::default();
+              let mut filled : $name  = Default::default();
               
               $(
                   i += 1;
-                  filled_struct.$field = captures[i].parse::<$field_type>().unwrap();                
+                  filled.$field = captures[i].parse::<$field_type>().unwrap();                
               )*
               
-              filled_struct
+              filled
             } 
         }
     }
@@ -68,8 +70,8 @@ macro_rules! regexify {
 mod test {
 
     use regex::Regex;
-    use super::*;
-    
+    use super::{Restruct, RegexStruct};
+
     #[test]
     fn single_struct_with_same_types() {
 

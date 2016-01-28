@@ -5,9 +5,10 @@ This crate is inspired from [alexflint/go-restructure](https://github.com/alexfl
 This crate uses a macro `regexify!` which takes the struct along with its fields and patterns for sub-expressions.
 
 ```rust
-extern crate regex-struct;
+#[macro_use(regexify)]
+extern crate restructure;
 
-use regex-struct::{Restruct, RegexStruct};
+use restructure::{Restruct, RegexStruct};
 
 regexify!(HostName {
   domain, String, r"\w+"
@@ -49,10 +50,10 @@ regexify!( <struct name> {
 `regexify!` can deal with mixed type structs, making your work easier.
 
 ```rust
+#[macro_use(regexify)]
+extern crate restructure;
 
-extern crate regex-struct;
-
-use regex-struct::{Restruct, RegexStruct};
+use restructure::{Restruct, RegexStruct};
 
 regexify!(MovieDetail {
   title, String, r"'[^']+'"
