@@ -1,17 +1,20 @@
+#![feature(cell_extras)]
 extern crate regex;
 
-use regex::Regex;
+use regex::{Regex, Error};
+use std::cell::{RefCell, Ref};
+use std::clone::Clone;
 
 pub trait RegexStruct {
-    fn to_regex(&self) -> String;
-    fn fill(&self, text: &str) -> Self;
+    fn as_regex(&self) -> Ref<Regex>;
+    fn find(&self, text: &str) -> Self;
 }
 
 pub struct Restruct;
 
 impl Restruct {
-    pub fn find<T: RegexStruct>(regexstruct: &T, text: &str) -> T {
-        regexstruct.fill(text)
+    pub fn fill<T: RegexStruct>(regexstruct: &T, text: &str) -> T {
+        regexstruct.find(text)
     }
 }
 
@@ -22,34 +25,39 @@ macro_rules! regexify {
     }) => {
         struct $name {
             $($field: $field_type,)*
+            _regex : RefCell<Result<Regex, Error>>
         }
 
         impl Default for $name {
           fn default() -> $name {
+            
+            let mut regex = String::from("");
+              
+              $(
+                   let capture_name = format!("?P<{}>", stringify!($field));
+                   regex.push('('); 
+                   regex.push_str(&capture_name);
+                   regex.push_str($pattern);
+                   regex.push(')');
+              )*
+              
             $name {
               $($field : Default::default(),)*
+              _regex : RefCell::new(Regex::new(&regex))
             } 
           }
         }
                 
         impl RegexStruct for $name {
             
-            fn to_regex(&self) -> String {           
-              
-              let mut regex = String::from("");
-              
-              $(
-                   regex.push('(');
-                   regex.push_str($pattern);
-                   regex.push(')');
-              )*
-              
-              regex
+            fn as_regex(&self) -> Ref<Regex> {
+              let re: Ref<Regex> = Ref::filter_map(self._regex.borrow(), |o| o.as_ref().ok()).unwrap();
+              re
             }
             
-            fn fill(&self, text: &str) -> $name {
-              
-              let captures = Regex::new(&self.to_regex()).unwrap().captures(text).unwrap();
+            fn find(&self, text: &str) -> $name {
+      
+              let captures = self.as_regex().captures(text).unwrap();
       
               let mut i = 0;
               
@@ -57,7 +65,7 @@ macro_rules! regexify {
               
               $(
                   i += 1;
-                  filled.$field = captures[i].parse::<$field_type>().unwrap();                
+                  filled.$field = captures.at(i).unwrap().parse::<$field_type>().unwrap();                
               )*
               
               filled
@@ -69,7 +77,8 @@ macro_rules! regexify {
 #[cfg(test)]
 mod test {
 
-    use regex::Regex;
+    use std::cell::{RefCell, Ref};
+    use regex::{Regex, Error};
     use super::{Restruct, RegexStruct};
 
     #[test]
@@ -83,7 +92,7 @@ mod test {
 
         let host: HostName = Default::default();
 
-        let filled_host = Restruct::find(&host, "example.com");
+        let filled_host = Restruct::fill(&host, "example.com");
 
         assert_eq!("example", filled_host.domain);
         assert_eq!("com", filled_host.tld);
@@ -94,7 +103,7 @@ mod test {
 
         regexify!(Movies {
         title, String, r"'[^']+'"
-        ws, String, r"\s+"
+        ws, String, "\\s+"
         open_paren, String, r"\("
         year, i32, r"\d+"
         close_paren, String, r"\)"
@@ -102,7 +111,7 @@ mod test {
 
         let movie: Movies = Default::default();
 
-        let filled_movie = Restruct::find(&movie, "Not my favorite movie: 'Citizen Kane' (1941).");
+        let filled_movie = Restruct::fill(&movie, "Not my favorite movie: 'Citizen Kane' (1941).");
 
         assert_eq!(r"'Citizen Kane'", filled_movie.title);
         assert_eq!(1941, filled_movie.year);
