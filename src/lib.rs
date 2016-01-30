@@ -3,7 +3,6 @@ extern crate regex;
 
 use regex::{Regex, Error};
 use std::cell::{RefCell, Ref};
-use std::clone::Clone;
 
 pub trait RegexStruct {
     fn as_regex(&self) -> Ref<Regex>;
@@ -13,8 +12,8 @@ pub trait RegexStruct {
 pub struct Restruct;
 
 impl Restruct {
-    pub fn fill<T: RegexStruct>(regexstruct: &T, text: &str) -> T {
-        regexstruct.find(text)
+    pub fn fill<T: RegexStruct>(regex_struct: &T, text: &str) -> T {
+        regex_struct.find(text)
     }
 }
 
@@ -24,21 +23,27 @@ macro_rules! regexify {
         $($field : ident, $field_type : ty, $pattern : expr)*
     }) => {
         struct $name {
-            $($field: $field_type,)*
+            $(
+              $field: $field_type,
+            )*
             _regex : RefCell<Result<Regex, Error>>
         }
 
         impl Default for $name {
           fn default() -> $name {
             
-            let mut regex = String::from("");
+            let mut regex = String::new();
               
               $(
-                   let capture_name = format!("?P<{}>", stringify!($field));
-                   regex.push('('); 
-                   regex.push_str(&capture_name);
-                   regex.push_str($pattern);
-                   regex.push(')');
+                   match stringify!($field) {
+                    x if x.starts_with("_") => {
+                      regex.push_str($pattern);
+                    },
+                    y => {
+                       let capture_with_name = format!("(?P<{}>{})", y, $pattern);
+                       regex.push_str(&capture_with_name);
+                    }   
+                   }
               )*
               
             $name {
@@ -59,13 +64,12 @@ macro_rules! regexify {
       
               let captures = self.as_regex().captures(text).unwrap();
       
-              let mut i = 0;
-              
               let mut filled : $name  = Default::default();
               
               $(
-                  i += 1;
-                  filled.$field = captures.at(i).unwrap().parse::<$field_type>().unwrap();                
+                  if let Some(value) = captures.name(stringify!($field)) {
+                    filled.$field = value.parse::<$field_type>().unwrap();
+                  }
               )*
               
               filled
@@ -82,11 +86,27 @@ mod test {
     use super::{Restruct, RegexStruct};
 
     #[test]
+    fn single_struct_regex() {
+        regexify!(SemVer {
+        major, i32, r"\d+"
+        _1, String, r"\."
+        minor, i32, r"\d+"
+        _2, String, r"\."
+        patch, i32, r"\d+"
+      });
+
+        let version: SemVer = Default::default();
+
+        assert_eq!(r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)",
+                   version.as_regex().as_str());
+    }
+
+    #[test]
     fn single_struct_with_same_types() {
 
         regexify!(HostName {
         domain, String, r"\w+"
-        dot, String, r"\."
+        _dot, String, r"\."
         tld, String, r"\w+"
       });
 
@@ -103,10 +123,10 @@ mod test {
 
         regexify!(Movies {
         title, String, r"'[^']+'"
-        ws, String, "\\s+"
-        open_paren, String, r"\("
+        _ws, String, "\\s+"
+        _open, String, r"\("
         year, i32, r"\d+"
-        close_paren, String, r"\)"
+        _close, String, r"\)"
       });
 
         let movie: Movies = Default::default();
