@@ -123,10 +123,9 @@ mod test {
 
         regexify!(Movies {
         title, String, r"'[^']+'"
-        _ws, String, "\\s+"
-        _open, String, r"\("
+        _1, String, r"\s+\("
         year, i32, r"\d+"
-        _close, String, r"\)"
+        _2, String, r"\)"
       });
 
         let movie: Movies = Default::default();
