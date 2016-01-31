@@ -92,4 +92,5 @@ Apart from declaring the struct specified, it also implements the `RegexStruct` 
 ### TODO
 * Nested structs
 * Better error handling
-* Make it available on crates.io
+* Iterable structs
+* JSON conversion (optional)

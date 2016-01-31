@@ -2,6 +2,12 @@
 name = "restructure"
 version = "0.1.0"
 authors = ["Faizaan <aulisius7@gmail.com>"]
+repository = "https://github.com/faizaanceg/rust-restructure.git"
+homepage = "https://github.com/faizaanceg/rust-restructure.git"
+readme = "README.md"
+description = "Match regex expressions into struct fields"
+keywords = ["regex", "struct", "restructure"]
+license = "MIT"
 
 [dependencies]
 regex = "^0.1.48"
