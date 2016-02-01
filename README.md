@@ -1,4 +1,5 @@
 [![Crates.io](https://img.shields.io/crates/v/restructure.svg?style=plastic)](https://crates.io/crates/restructure/)
+[![rust](https://img.shields.io/badge/rust-nightly-red.svg?style=plastic)](https://www.rust-lang.org/downloads.html)
 
 ## Match regular expressions into struct fields
 
