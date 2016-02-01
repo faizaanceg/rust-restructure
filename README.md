@@ -1,3 +1,5 @@
+[![Crates.io](https://img.shields.io/crates/v/restructure.svg?style=plastic)](https://crates.io/crates/restructure/)
+
 ## Match regular expressions into struct fields
 
 This crate is inspired from [alexflint/go-restructure](https://github.com/alexflint/go-restructure)
