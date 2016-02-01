@@ -1,22 +1,73 @@
+//! The `restructure` crate provides functionalities to match regexp patterns
+//! into struct fields.
+
 #![feature(cell_extras)]
 extern crate regex;
 
 use regex::{Regex, Error};
 use std::cell::{RefCell, Ref};
 
+/// This trait allows you to match struct fields with regexp
 pub trait RegexStruct {
+    /// This function returns Regex representation of the struct
     fn as_regex(&self) -> Ref<Regex>;
+    
+    /// This function takes a Slice, find Captures in it and assigns
+    /// it to the appropriate struct fields
     fn find(&self, text: &str) -> Self;
 }
 
 pub struct Restruct;
 
 impl Restruct {
+    /// This function takes a `RegexStruct` and a `Slice` and returns a `RegexStruct` with its fields filled with 
+    /// the patterns from the text
+    ///
+    ///```
+    /// # #![feature(cell_extras)]
+    ///
+    /// # #[macro_use] extern crate restructure;
+    /// # extern crate regex;
+    /// # use std::cell::{RefCell, Ref};
+    /// # use regex::{Regex, Error};
+    /// # use restructure::{Restruct, RegexStruct};
+    /// # fn main() {
+    /// regexify! ( Details {
+    /// name, String, r"\w+"
+    /// _w, String, r"\s+"
+    /// age, i32, r"\d+"
+    /// });
+    /// 
+    ///let user: Details = Default::default();
+    ///
+    ///let obama = Restruct::fill(&user, "Obama 54");
+    ///
+    ///assert_eq!("Obama", obama.name);
+    ///assert_eq!(54, obama.age);
+    /// # }
+    ///```
     pub fn fill<T: RegexStruct>(regex_struct: &T, text: &str) -> T {
         regex_struct.find(text)
     }
 }
 
+/// Create a struct with regex patterns and implements RegexStruct trait on it.
+///
+///```
+/// # #![feature(cell_extras)]
+/// # #[macro_use] extern crate restructure;
+/// # extern crate regex;
+/// # use std::cell::{RefCell, Ref};
+/// # use regex::{Regex, Error};
+/// # use restructure::{Restruct, RegexStruct};
+/// # fn main() {
+/// regexify! ( Details {
+/// name, String, r"\w+"
+/// _w, String, r"\s+"
+/// age, i32, r"\d+"
+/// });
+/// # }
+///```
 #[macro_export]
 macro_rules! regexify {
     ($name : ident {
@@ -54,7 +105,7 @@ macro_rules! regexify {
         }
                 
         impl RegexStruct for $name {
-            
+
             fn as_regex(&self) -> Ref<Regex> {
               let re: Ref<Regex> = Ref::filter_map(self._regex.borrow(), |o| o.as_ref().ok()).unwrap();
               re
@@ -87,6 +138,7 @@ mod test {
 
     #[test]
     fn single_struct_regex() {
+        
         regexify!(SemVer {
         major, i32, r"\d+"
         _1, String, r"\."
