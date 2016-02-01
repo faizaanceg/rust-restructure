@@ -1,5 +1,18 @@
 //! The `restructure` crate provides functionalities to match regexp patterns
-//! into struct fields.
+//! into struct fields. This crate only builds on rust-nightly as of now.
+//!
+//! #Usage
+//! To use this, add the following to your `Cargo.toml`.
+//!```text
+//! [dependencies]
+//! restructure = "0.1.0"
+//! ```
+//! and add this to your crate root:
+//!```text
+//! #![feature(cell_extras)]
+//! extern crate regex;
+//!```
+   
 
 #![feature(cell_extras)]
 extern crate regex;
@@ -9,7 +22,7 @@ use std::cell::{RefCell, Ref};
 
 /// This trait allows you to match struct fields with regexp
 pub trait RegexStruct {
-    /// This function returns Regex representation of the struct
+    /// This function returns the Regex representation of the struct
     fn as_regex(&self) -> Ref<Regex>;
     
     /// This function takes a Slice, find Captures in it and assigns

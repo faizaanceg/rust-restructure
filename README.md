@@ -1,5 +1,6 @@
 [![Crates.io](https://img.shields.io/crates/v/restructure.svg?style=plastic)](https://crates.io/crates/restructure/)
-[![rust](https://img.shields.io/badge/rust-nightly-red.svg?style=plastic)](https://www.rust-lang.org/downloads.html)
+[![rust-nightly](https://img.shields.io/badge/rust-nightly-red.svg?style=plastic)](https://www.rust-lang.org/downloads.html)
+[![crate-doc](https://img.shields.io/badge/docs-100%25-green.svg)](https://faizaanceg.github.io/rust-restructure/restructure/)
 
 ## Match regular expressions into struct fields
 
