@@ -1,14 +1,16 @@
 //! The `restructure` crate provides functionalities to match regexp patterns
-//! into struct fields. This crate only builds on rust-nightly as of now.
+//! into struct fields. This crate only builds on **rust-nightly** as of now.
 //!
-//! #Usage
 //! To use this, add the following to your `Cargo.toml`.
-//!```text
+//!
+//!```
 //! [dependencies]
 //! restructure = "0.1.0"
-//! ```
+//!```
+//!
 //! and add this to your crate root:
-//!```text
+//!
+//!```
 //! #![feature(cell_extras)]
 //! extern crate regex;
 //!```
@@ -30,6 +32,7 @@ pub trait RegexStruct {
     fn find(&self, text: &str) -> Self;
 }
 
+/// Contains the `fill` method used to fill the struct with fields
 pub struct Restruct;
 
 impl Restruct {

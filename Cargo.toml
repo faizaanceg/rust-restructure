@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Faizaan <aulisius7@gmail.com>"]
 repository = "https://github.com/faizaanceg/rust-restructure.git"
 homepage = "https://github.com/faizaanceg/rust-restructure.git"
+documentation = "http://faizaanceg.github.io/rust-restructure/restructure/index.html"
 readme = "README.md"
 description = "Match regex expressions into struct fields"
 keywords = ["regex", "struct", "restructure"]
