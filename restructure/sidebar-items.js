@@ -1,0 +1,1 @@
+initSidebarItems({"macro":[["regexify!","Create a struct with regex patterns and implements RegexStruct trait on it."]],"struct":[["Restruct","Contains the `fill` method used to fill the struct with fields"]],"trait":[["RegexStruct","This trait allows you to match struct fields with regexp"]]});
