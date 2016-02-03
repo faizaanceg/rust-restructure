@@ -3,9 +3,9 @@
 //!
 //! To use this, add the following to your `Cargo.toml`.
 //!
-//!```
+//!```text
 //! [dependencies]
-//! restructure = "0.1.0"
+//! restructure = "0.1.1"
 //!```
 //!
 //! and add this to your crate root:
