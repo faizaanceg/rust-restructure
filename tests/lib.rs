@@ -1,11 +1,8 @@
-#![feature(cell_extras)]
-
 #[macro_use(regexify)]
 extern crate restructure;
 extern crate regex;
 
-use std::cell::{RefCell, Ref};
-use regex::{Regex, Error};
+use regex::Regex;
 use restructure::{Restruct, RegexStruct};
 
 #[test]

@@ -1,6 +1,6 @@
 [![Crates.io](https://img.shields.io/crates/v/restructure.svg?style=plastic)](https://crates.io/crates/restructure/)
-[![rust-nightly](https://img.shields.io/badge/rust-nightly-red.svg?style=plastic)](https://www.rust-lang.org/downloads.html)
-[![crate-doc](https://img.shields.io/badge/docs-100%25-green.svg)](https://faizaanceg.github.io/rust-restructure/restructure/)
+[![rust-stable](https://img.shields.io/badge/rust-stable-green.svg?style=plastic)](https://www.rust-lang.org/downloads.html)
+[![crate-doc](https://img.shields.io/badge/docs-100%25-green.svg)](https://docs.rs/restructure/)
 
 ## Match regular expressions into struct fields
 
@@ -9,14 +9,11 @@ This crate is inspired from [alexflint/go-restructure](https://github.com/alexfl
 This crate uses a macro `regexify!` which takes the struct along with its fields and patterns for sub-expressions.
 
 ```rust
-#![feature(cell_extras)]
-
 #[macro_use(regexify)]
 extern crate restructure;
 extern crate regex;
 
-use std::cell::{RefCell, Ref};
-use regex::{Regex, Error};
+use regex::Regex;
 use restructure::{Restruct, RegexStruct};
 
 regexify!(HostName {
@@ -26,7 +23,7 @@ regexify!(HostName {
 });
 
 fn main() {
-  
+
   let host: HostName = Default::default();
 
   let filled_host = Restruct::fill(&host, "example.com");
@@ -41,7 +38,7 @@ The regular expression that was executed was the concatenation of the struct tag
 ```
 (?P<domain>\w+)\.(?P<tld>\w+)
 ```
-You can see that the fields which start with a `_` are not added as captures into the regex. You can use `_` with fields which act as seperators or whitespace. 
+You can see that the fields which start with a `_` are not added as captures into the regex. You can use `_` with fields which act as seperators or whitespace.
 
 The first submatch was inserted into the `domain` field and the next into `tld` field.
 
@@ -85,13 +82,13 @@ fn main() {
 
   assert_eq!(r"'Citizen Kane'", not_my_favorite_movie.title);
   assert_eq!(1941, not_my_favorite_movie.year);
-  
+
 }
 
 ```
 
 ### What `regexify!` does
-Apart from declaring the struct specified, it also implements the `RegexStruct` trait on the defined struct. It also applies the trait `std::default::Default` on the struct. 
+Apart from declaring the struct specified, it also implements the `RegexStruct` trait on the defined struct. It also applies the trait `std::default::Default` on the struct.
 
 ### TODO
 * Nested structs

@@ -1,5 +1,5 @@
 //! The `restructure` crate provides functionalities to match regexp patterns
-//! into struct fields. This crate only builds on **rust-nightly** as of now.
+//! into struct fields. This crate now builds on **rust-stable**.
 //!
 //! To use this, add the following to your `Cargo.toml`.
 //!
@@ -11,22 +11,12 @@
 //! and add this to your crate root:
 //!
 //!```
-//! #![feature(cell_extras)]
 //! extern crate regex;
 //!```
-   
-
-#![feature(cell_extras)]
 extern crate regex;
-
-use regex::{Regex, Error};
-use std::cell::{RefCell, Ref};
 
 /// This trait allows you to match struct fields with regexp
 pub trait RegexStruct {
-    /// This function returns the Regex representation of the struct
-    fn as_regex(&self) -> Ref<Regex>;
-    
     /// This function takes a Slice, find Captures in it and assigns
     /// it to the appropriate struct fields
     fn find(&self, text: &str) -> Self;
@@ -36,16 +26,14 @@ pub trait RegexStruct {
 pub struct Restruct;
 
 impl Restruct {
-    /// This function takes a `RegexStruct` and a `Slice` and returns a `RegexStruct` with its fields filled with 
+    /// This function takes a `RegexStruct` and a `Slice` and returns a `RegexStruct`
+    /// with its fields filled with
     /// the patterns from the text
     ///
     ///```
-    /// # #![feature(cell_extras)]
-    ///
     /// # #[macro_use] extern crate restructure;
     /// # extern crate regex;
-    /// # use std::cell::{RefCell, Ref};
-    /// # use regex::{Regex, Error};
+    /// # use regex::Regex;
     /// # use restructure::{Restruct, RegexStruct};
     /// # fn main() {
     /// regexify! ( Details {
@@ -53,7 +41,7 @@ impl Restruct {
     /// _w, String, r"\s+"
     /// age, i32, r"\d+"
     /// });
-    /// 
+    ///
     ///let user: Details = Default::default();
     ///
     ///let obama = Restruct::fill(&user, "Obama 54");
@@ -70,11 +58,9 @@ impl Restruct {
 /// Create a struct with regex patterns and implements RegexStruct trait on it.
 ///
 ///```
-/// # #![feature(cell_extras)]
 /// # #[macro_use] extern crate restructure;
 /// # extern crate regex;
-/// # use std::cell::{RefCell, Ref};
-/// # use regex::{Regex, Error};
+/// # use regex::Regex;
 /// # use restructure::{Restruct, RegexStruct};
 /// # fn main() {
 /// regexify! ( Details {
@@ -93,54 +79,51 @@ macro_rules! regexify {
             $(
               $field: $field_type,
             )*
-            _regex : RefCell<Result<Regex, Error>>
+            _regex : Regex
         }
 
         impl Default for $name {
           fn default() -> $name {
-            
+
             let mut regex = String::new();
-              
+
               $(
                    match stringify!($field) {
                     x if x.starts_with("_") => {
                       regex.push_str($pattern);
                     },
                     y => {
-                       let capture_with_name = format!("(?P<{}>{})", y, $pattern);
-                       regex.push_str(&capture_with_name);
-                    }   
+                       let named_capture = format!("(?P<{}>{})", y, $pattern);
+                       regex.push_str(&named_capture);
+                    }
                    }
               )*
-              
+
             $name {
               $($field : Default::default(),)*
-              _regex : RefCell::new(Regex::new(&regex))
-            } 
+              _regex : Regex::new(regex.as_str()).unwrap()
+            }
           }
         }
-                
+
         impl RegexStruct for $name {
 
-            fn as_regex(&self) -> Ref<Regex> {
-              let re: Ref<Regex> = Ref::filter_map(self._regex.borrow(), |o| o.as_ref().ok()).unwrap();
-              re
-            }
-            
+            // f`
+
             fn find(&self, text: &str) -> $name {
-      
-              let captures = self.as_regex().captures(text).unwrap();
-      
+
+              let captures = self._regex.captures(text).unwrap();
+
               let mut filled : $name  = Default::default();
-              
+
               $(
                   if let Some(value) = captures.name(stringify!($field)) {
-                    filled.$field = value.parse::<$field_type>().unwrap();
+                    filled.$field = value.as_str().parse::<$field_type>().unwrap();
                   }
               )*
-              
+
               filled
-            } 
+            }
         }
     }
 }
@@ -148,25 +131,24 @@ macro_rules! regexify {
 #[cfg(test)]
 mod test {
 
-    use std::cell::{RefCell, Ref};
-    use regex::{Regex, Error};
+    use regex::Regex;
     use super::{Restruct, RegexStruct};
 
     #[test]
     fn single_struct_regex() {
-        
+
         regexify!(SemVer {
         major, i32, r"\d+"
-        _1, String, r"\."
+        __1, String, r"\."
         minor, i32, r"\d+"
-        _2, String, r"\."
+        __2, String, r"\."
         patch, i32, r"\d+"
       });
 
         let version: SemVer = Default::default();
 
         assert_eq!(r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)",
-                   version.as_regex().as_str());
+                   version._regex.as_str());
     }
 
     #[test]
@@ -176,7 +158,7 @@ mod test {
         domain, String, r"\w+"
         _dot, String, r"\."
         tld, String, r"\w+"
-      });
+        });
 
         let host: HostName = Default::default();
 
